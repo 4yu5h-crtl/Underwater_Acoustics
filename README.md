@@ -295,6 +295,25 @@ data/raw/
     └── background_noise_003.wav
 ```
 
+#### **Phase 1.5: Audio Preprocessing (Optional but Recommended)**
+
+```bash
+# Clean and filter your audio files for better feature extraction
+python src/preprocessing.py --input data/raw/ship --output data/processed/ship
+python src/preprocessing.py --input data/raw/animal --output data/processed/animal
+python src/preprocessing.py --input data/raw/submarine --output data/processed/submarine
+python src/preprocessing.py --input data/raw/noise --output data/processed/noise
+
+# Or process all at once (if you have enough memory)
+python src/preprocessing.py --input data/raw --output data/processed --verbose
+```
+
+**What Preprocessing Does:**
+- **Band-pass filtering**: Removes frequencies outside 20 Hz - 10 kHz range
+- **Audio normalization**: Balances audio levels for consistent processing
+- **Noise reduction**: Cleans up background interference
+- **Quality improvement**: Better audio leads to better features
+
 **File Requirements:**
 - **Format**: `.wav` files (16-bit PCM recommended)
 - **Duration**: 3-5 seconds per clip
@@ -304,14 +323,18 @@ data/raw/
 #### **Phase 2: Feature Extraction**
 
 ```bash
-# Extract numerical features from all audio files
+# Extract numerical features from audio files
+# Use processed audio if available, otherwise raw audio
 python src/feature_extraction.py
 
 # This will:
-# - Process all .wav files in data/raw/
+# - Process all .wav files in data/processed/ (if exists) or data/raw/
 # - Extract MFCCs, spectral features, and ZCR
 # - Save features to data/features/features.csv
 # - Create feature_scaler.pkl for normalization
+
+# Custom input directory (if you want to use specific audio)
+python src/feature_extraction.py --input data/processed/
 ```
 
 **Expected Output:**
@@ -423,16 +446,19 @@ python src/inference.py --output results.json data/raw/new_file.wav
 ```bash
 # Run the entire pipeline from start to finish:
 
-# 1. Extract features
+# 1. (Optional) Preprocess audio for better quality
+python src/preprocessing.py --input data/raw --output data/processed --verbose
+
+# 2. Extract features
 python src/feature_extraction.py
 
-# 2. Train classifier
+# 3. Train classifier
 python src/train_classifier.py
 
-# 3. Evaluate model
+# 4. Evaluate model
 python src/evaluate.py
 
-# 4. Test with new audio
+# 5. Test with new audio
 python src/inference.py data/raw/test_file.wav
 ```
 
@@ -446,7 +472,11 @@ underwater-classification/
 │   │   ├── animal/            # Animal sounds
 │   │   ├── submarine/         # Submarine sounds
 │   │   └── noise/             # Ambient noise
-│   ├── processed/             # Cleaned audio (if preprocessing used)
+│   ├── processed/             # Cleaned and filtered audio files
+│   │   ├── ship/              # Preprocessed ship recordings
+│   │   ├── animal/            # Preprocessed animal sounds
+│   │   ├── submarine/         # Preprocessed submarine sounds
+│   │   └── noise/             # Preprocessed ambient noise
 │   └── features/              # Extracted features
 │       ├── features.csv       # Main features file
 │       └── feature_scaler.pkl # Feature scaler
@@ -569,3 +599,8 @@ done
 - **Large datasets**: Process files in batches
 - **Parallel processing**: Use multiple CPU cores
 - **Memory management**: Process one file at a time for very large datasets
+
+
+## 📝 License
+
+This project is open source. Please check individual dependencies for their respective licenses.
