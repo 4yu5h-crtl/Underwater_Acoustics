@@ -1,0 +1,36 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Model artifacts
+models/*.pkl
+models/*.json
+
+# Data directories
+data/raw/
+data/processed/
+data/features/
+
+# Auto-generated output artifacts (not sample files)
+outputs/plots/*.png
+outputs/reports/classification_report.txt
+outputs/reports/evaluation_metrics.json
+outputs/results/inference_*.json
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db

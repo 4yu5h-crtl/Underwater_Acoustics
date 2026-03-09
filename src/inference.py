@@ -28,7 +28,7 @@ from anomaly_detection import AnomalyDetector
 from feature_extraction import FeatureExtractor
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class UnderwaterInferencePipeline:
@@ -486,12 +486,25 @@ def main():
         # Run inference
         results = pipeline.run_inference(args.input_file)
         
-        # Save results
-        os.makedirs(os.path.dirname(args.output), exist_ok=True)
+        # Save results to specified output file
+        os.makedirs(os.path.dirname(os.path.abspath(args.output)), exist_ok=True)
         with open(args.output, 'w') as f:
             json.dump(results, f, indent=2)
-        
+
         logger.info(f"Results saved to: {args.output}")
+
+        # Always auto-save to outputs/results/ as well
+        try:
+            import sys
+            sys.path.insert(0, os.path.dirname(__file__))
+            from visualize import ResultVisualizer
+            from pathlib import Path as _Path
+            repo_root = _Path(__file__).resolve().parent.parent
+            viz = ResultVisualizer(output_dir=str(repo_root / "outputs"))
+            auto_path = viz.save_inference_result(results)
+            logger.info(f"Auto-saved inference result to: {auto_path}")
+        except Exception as exc:
+            logger.warning(f"Could not auto-save inference result: {exc}")
         
         # Print summary
         print(f"\n{'='*60}")

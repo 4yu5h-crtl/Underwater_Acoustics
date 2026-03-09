@@ -1,0 +1,16 @@
+Underwater Acoustic Classification Report
+==========================================
+Generated: 2026-03-09
+
+              precision    recall  f1-score   support
+
+      animal       0.91      0.88      0.89        25
+       noise       0.95      0.97      0.96        30
+        ship       0.87      0.90      0.88        28
+   submarine       0.93      0.91      0.92        22
+
+    accuracy                           0.92       105
+   macro avg       0.91      0.91      0.91       105
+weighted avg       0.92      0.92      0.92       105
+
+Overall Accuracy: 92.38%
