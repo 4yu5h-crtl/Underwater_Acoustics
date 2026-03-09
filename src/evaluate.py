@@ -27,7 +27,7 @@ import logging
 from datetime import datetime
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class ModelEvaluator:
@@ -530,11 +530,16 @@ def main():
         help="Disable plot generation"
     )
     parser.add_argument(
+        "--save-plots", "-s",
+        action="store_true",
+        help="Save confusion matrix, ROC curves, and classification report to outputs/"
+    )
+    parser.add_argument(
         "--verbose", "-v",
         action="store_true",
         help="Enable verbose logging"
     )
-    
+
     args = parser.parse_args()
     
     # Set logging level
@@ -575,10 +580,61 @@ def main():
         print("\nGenerating plots...")
         evaluator.generate_confusion_matrix()
         evaluator.plot_roc_curves()
-    
+
+    # Save plots and reports to outputs/ when --save-plots is used
+    if args.save_plots:
+        try:
+            import sys
+            sys.path.insert(0, os.path.dirname(__file__))
+            from visualize import ResultVisualizer
+            from pathlib import Path as _Path
+            repo_root = _Path(__file__).resolve().parent.parent
+            viz = ResultVisualizer(output_dir=str(repo_root / "outputs"))
+
+            # Confusion matrix
+            if evaluator.predictions is not None and evaluator.test_labels is not None:
+                from sklearn.metrics import confusion_matrix as _cm
+                cm = _cm(evaluator.test_labels, evaluator.predictions)
+                class_names = list(evaluator.class_names) if evaluator.class_names is not None else []
+                viz.save_confusion_matrix(cm.astype(int), class_names)
+
+            # ROC curves
+            if evaluator.probabilities is not None and evaluator.test_labels is not None:
+                from sklearn.preprocessing import label_binarize
+                classes = list(evaluator.class_names)
+                y_bin = label_binarize(evaluator.test_labels, classes=list(range(len(classes))))
+                viz.save_roc_curves(y_bin, evaluator.probabilities, classes)
+
+            # Classification report
+            if evaluator.predictions is not None and evaluator.test_labels is not None:
+                from sklearn.metrics import classification_report as _cr
+                report_text = _cr(
+                    evaluator.test_labels, evaluator.predictions,
+                    target_names=list(evaluator.class_names) if evaluator.class_names is not None else None
+                )
+                viz.save_classification_report(report_text)
+
+            # Evaluation metrics JSON
+            if hasattr(evaluator, 'evaluation_results') and evaluator.evaluation_results:
+                import numpy as _np
+                metrics = {"model_type": "RandomForestClassifier",
+                           "timestamp": datetime.now().isoformat(timespec="seconds")}
+                for k, v in evaluator.evaluation_results.items():
+                    if isinstance(v, _np.ndarray):
+                        metrics[k] = v.tolist()
+                    elif isinstance(v, (_np.integer, _np.floating)):
+                        metrics[k] = v.item()
+                    else:
+                        metrics[k] = v
+                viz.save_evaluation_metrics(metrics)
+
+            logger.info("Evaluation outputs saved to outputs/")
+        except Exception as exc:
+            logger.warning(f"Could not save evaluation outputs via visualizer: {exc}")
+
     print(f"\nEvaluation completed successfully!")
     print(f"Results saved to: {args.output}")
-    
+
     return 0
 
 

@@ -27,7 +27,7 @@ import logging
 from datetime import datetime
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class UnderwaterClassifier:
@@ -585,17 +585,44 @@ def main():
     
     # Generate plots if requested
     if args.plot or args.save_plots:
-        plots_dir = os.path.join(args.output, "plots")
+        # Default save destination when --save-plots is used: outputs/plots/
+        if args.save_plots:
+            repo_root = Path(__file__).resolve().parent.parent
+            plots_dir = str(repo_root / "outputs" / "plots")
+        else:
+            plots_dir = os.path.join(args.output, "plots")
         os.makedirs(plots_dir, exist_ok=True)
-        
+
         # Confusion matrix
         cm_path = os.path.join(plots_dir, "confusion_matrix.png") if args.save_plots else None
         classifier.plot_confusion_matrix(cm_path)
-        
+
         # Feature importance
         fi_path = os.path.join(plots_dir, "feature_importance.png") if args.save_plots else None
         classifier.plot_feature_importance(fi_path)
-    
+
+    # Save evaluation metrics JSON to outputs/reports/ when --save-plots is used
+    if args.save_plots:
+        try:
+            import sys
+            sys.path.insert(0, os.path.dirname(__file__))
+            from visualize import ResultVisualizer
+            repo_root = Path(__file__).resolve().parent.parent
+            viz = ResultVisualizer(output_dir=str(repo_root / "outputs"))
+            metrics = {
+                "model_type": "RandomForestClassifier",
+                "timestamp": datetime.now().isoformat(timespec="seconds"),
+            }
+            if hasattr(classifier, 'evaluation_results') and classifier.evaluation_results:
+                er = classifier.evaluation_results
+                for k, v in er.items():
+                    if k != 'feature_importance':
+                        metrics[k] = float(v) if hasattr(v, 'item') else v
+            viz.save_evaluation_metrics(metrics)
+            logger.info("Evaluation metrics saved to outputs/reports/")
+        except Exception as exc:
+            logger.warning(f"Could not save evaluation metrics via visualizer: {exc}")
+
     return 0
 
 

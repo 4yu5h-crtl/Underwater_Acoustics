@@ -194,6 +194,56 @@ python src/evaluate.py --save-plots
 - ROC curves (if probabilities available)
 - Detailed evaluation report saved as text file
 
+## 📊 Sample Outputs & Results
+
+Running the full pipeline produces the following outputs, all saved to the `outputs/` directory.
+
+### Classification Report (Sample)
+After training and evaluation, a detailed report is saved to `outputs/reports/`:
+
+```
+Underwater Acoustic Classification Report
+==========================================
+              precision    recall  f1-score   support
+
+      animal       0.91      0.88      0.89        25
+       noise       0.95      0.97      0.96        30
+        ship       0.87      0.90      0.88        28
+   submarine       0.93      0.91      0.92        22
+
+    accuracy                           0.92       105
+```
+
+### Inference Result (Sample)
+Each inference run produces a JSON result saved to `outputs/results/`:
+```json
+{
+  "file": "ocean_recording_sample.wav",
+  "detections": [
+    {"start_time": 8.3,  "end_time": 11.9, "label": "ship",      "confidence": 0.91},
+    {"start_time": 27.5, "end_time": 31.2, "label": "animal",    "confidence": 0.84},
+    {"start_time": 45.8, "end_time": 49.1, "label": "submarine", "confidence": 0.78}
+  ]
+}
+```
+
+### Generated Plots
+The following plots are automatically saved to `outputs/plots/`:
+| Plot | Description |
+|------|-------------|
+| `confusion_matrix.png` | Heatmap of predicted vs. actual classes |
+| `feature_importance.png` | Top features ranked by Random Forest importance |
+| `roc_curves.png` | ROC curves per class with AUC scores |
+| `mfcc_spectrogram.png` | MFCC spectrogram of a sample audio file |
+| `anomaly_detection_plot.png` | Energy & spectral flux with detected anomalies |
+| `class_distribution.png` | Distribution of samples per class in the dataset |
+
+### Generate All Demo Outputs
+To regenerate all sample outputs using synthetic data (no audio files needed):
+```bash
+python src/visualize.py --demo
+```
+
 ## 🚀 Inference (Real-Time Classification)
 
 ### How Inference Works

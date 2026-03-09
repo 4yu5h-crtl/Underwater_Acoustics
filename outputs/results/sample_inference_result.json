@@ -1,0 +1,48 @@
+{
+  "file": "ocean_recording_sample.wav",
+  "duration_seconds": 62.4,
+  "processed_at": "2026-03-09T00:00:00",
+  "preprocessing": {
+    "bandpass_filter": "20 Hz - 10000 Hz",
+    "normalized_db": -20,
+    "sample_rate": 22050
+  },
+  "anomaly_detection": {
+    "total_segments_analyzed": 122,
+    "anomalous_segments_found": 3
+  },
+  "detections": [
+    {
+      "detection_id": 1,
+      "start_time": 8.3,
+      "end_time": 11.9,
+      "duration": 3.6,
+      "label": "ship",
+      "confidence": 0.91,
+      "top_predictions": {"ship": 0.91, "noise": 0.06, "submarine": 0.02, "animal": 0.01}
+    },
+    {
+      "detection_id": 2,
+      "start_time": 27.5,
+      "end_time": 31.2,
+      "duration": 3.7,
+      "label": "animal",
+      "confidence": 0.84,
+      "top_predictions": {"animal": 0.84, "noise": 0.10, "ship": 0.04, "submarine": 0.02}
+    },
+    {
+      "detection_id": 3,
+      "start_time": 45.8,
+      "end_time": 49.1,
+      "duration": 3.3,
+      "label": "submarine",
+      "confidence": 0.78,
+      "top_predictions": {"submarine": 0.78, "ship": 0.13, "noise": 0.06, "animal": 0.03}
+    }
+  ],
+  "summary": {
+    "total_detections": 3,
+    "detected_classes": ["ship", "animal", "submarine"],
+    "highest_confidence_detection": {"label": "ship", "confidence": 0.91}
+  }
+}

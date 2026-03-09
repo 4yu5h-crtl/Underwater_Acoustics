@@ -22,7 +22,7 @@ from scipy.stats import percentileofscore
 import matplotlib.pyplot as plt
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class AnomalyDetector:
